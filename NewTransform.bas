@@ -638,7 +638,7 @@ For Each pge In ActiveDocument.ActiveWindow.Panes(1).Pages
                         sCellText = Left$(sCellText, Len(sCellText) - 2)
                         sCellText = StrConv(sCellText, vbProperCase)
                         If FindString(LCase(sCellText), LCase("Date")) Then
-                            sCellText = Replace(sCellText, "Date", "</strong></td></tr><tr><td><strong><span style='font-family: Arial;font-size: 18px;'>Date")
+                            sCellText = Replace(sCellText, "Date", "</strong></td></tr><tr><td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><strong><span style='font-family: Arial;font-size: 18px;'>Date")
                         End If
                         If Len(sCellText) = 0 Then sCellText = "&nbsp;"
                         sCellText = "<td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><strong><span style='font-family: Arial;font-size: 18px;'>" & sCellText & "</span></strong></td>"
