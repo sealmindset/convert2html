@@ -1,4 +1,6 @@
 Sub transform_html()
+' This macro converts the active document in a document with HTML tags and formatting.
+' Adapted from v1.1 - Toxaris
 ' Customized for Surescripts for converting documents to be stored in ERM (Keylight)
 ' By Rob Vance
 
@@ -345,9 +347,9 @@ Dim noRows, noCells As Long
                     sCellText = Left$(sCellText, Len(sCellText) - 2)
                     If Len(sCellText) = 0 Then sCellText = "&nbsp;"
                     If oRow.Cells(1).RowIndex = 1 Then
-                        sCellText = "<td style='border: 1px solid rgb(0, 0, 0);'><span style='font-family: Arial; font-size: 11px;'><strong>" & sCellText & "</strong></span></td>"
+                        sCellText = "<td style='border: 1px solid rgb(0, 0, 0);border-collapse:collapse;'><span style='font-family: Arial; font-size: 11px;'><strong>" & sCellText & "</strong></span></td>"
                     Else
-                        sCellText = "<td style='border: 1px solid rgb(0, 0, 0);'><span style='font-family: Arial; font-size: 11px;'>" & sCellText & "</span></td>"
+                        sCellText = "<td style='border: 1px solid rgb(0, 0, 0);border-collapse:collapse;'><span style='font-family: Arial; font-size: 11px;'>" & sCellText & "</span></td>"
                     End If
                     oCell.Range = sCellText
                 Next oCell
@@ -630,16 +632,16 @@ For Each pge In ActiveDocument.ActiveWindow.Panes(1).Pages
                 For Each oCell In oRow.Cells
                     sCellText = oCell.Range
                     If (oRow.Cells(1).RowIndex = 1) Then
-                        sCellText = "<td><img style='width: 617px; height: 176px;' src='/UI/ImageViewer.aspx?id=762'></td>"
+                        sCellText = "<td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><img style='width: 617px; height: 176px;' src='/UI/ImageViewer.aspx?id=762'></td>"
                         oCell.Range = sCellText
                     Else
                         sCellText = Left$(sCellText, Len(sCellText) - 2)
                         sCellText = StrConv(sCellText, vbProperCase)
                         If FindString(LCase(sCellText), LCase("Date")) Then
-                            sCellText = Replace(sCellText, "Date", "</strong></td></tr><tr><td><strong><span style='font-size: 18px;'>Date")
+                            sCellText = Replace(sCellText, "Date", "</strong></td></tr><tr><td><strong><span style='font-family: Arial;font-size: 18px;'>Date")
                         End If
                         If Len(sCellText) = 0 Then sCellText = "&nbsp;"
-                        sCellText = "<td><strong><span style='font-size: 18px;'>" & sCellText & "</span></strong></td>"
+                        sCellText = "<td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><strong><span style='font-family: Arial;font-size: 18px;'>" & sCellText & "</span></strong></td>"
                         oCell.Range = sCellText
                     End If
                 Next oCell
