@@ -638,7 +638,7 @@ For Each pge In ActiveDocument.ActiveWindow.Panes(1).Pages
                         sCellText = Left$(sCellText, Len(sCellText) - 2)
                         sCellText = StrConv(sCellText, vbProperCase)
                         If FindString(LCase(sCellText), LCase("Date")) Then
-                            sCellText = Replace(sCellText, "Date", "</strong></td></tr><tr><td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><strong><span style='font-family: Arial;font-size: 18px;'>Date")
+                            sCellText = Replace(sCellText, "Date", "</strong></td></tr><tr bgcolor='white'><td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><strong><span style='font-family: Arial;font-size: 18px;'>Date")
                         End If
                         If Len(sCellText) = 0 Then sCellText = "&nbsp;"
                         sCellText = "<td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><strong><span style='font-family: Arial;font-size: 18px;'>" & sCellText & "</span></strong></td>"
@@ -659,6 +659,11 @@ For Each pge In ActiveDocument.ActiveWindow.Panes(1).Pages
         sCellText = Left$(sCellText, Len(sCellText) - 2)
         sCellText = "<table border='1' style='background-color:#FFFFFF;border-collapse:collapse;border:1px solid #FFFFFF;color:#000000;width:50%' cellpadding='1' cellspacing='1'>" & vbCr & sCellText
         tTable.Rows(1).Cells(1).Range = sCellText
+        
+        tTable.Rows.Add
+        sCellText = "<tr bgcolor='white'>" & vbCr & "<tr bgcolor='white'><td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><strong><span style='font-family: Arial;font-size: 18px;'>Proprietary and Confidential</td></tr>"
+        tTable.Rows(tTable.Rows.Count).Range = sCellText
+        
         noRows = tTable.Rows.Count
         noCells = tTable.Rows(noRows).Cells.Count
         sCellText = tTable.Rows(noRows).Cells(noCells).Range
