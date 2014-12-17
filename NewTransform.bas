@@ -1,6 +1,9 @@
+' Run the following routine then copy and paste the results into HTML Tidy at
+' http://infohound.net/tidy/tidy.pl
+' Then copy the results into ERM
 Sub transform_html()
 ' This macro converts the active document in a document with HTML tags and formatting.
-' Adapted from v1.1 - Toxaris
+'
 ' Customized for Surescripts for converting documents to be stored in ERM (Keylight)
 ' By Rob Vance
 
@@ -1031,3 +1034,4 @@ j = 4
     If j <= UBound(astrHeadings) Then j = j + 1
     Next intItem
 End Sub
+
