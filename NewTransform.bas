@@ -144,7 +144,9 @@ For Each fld In doc.Fields
         ActiveDocument.TablesOfContents(1).Delete
     End If
 Next
-ActiveDocument.Styles("TOC Title").Delete
+If ActiveDocument.Styles("TOC Title").NameLocal = "TOC Title" Then
+    ActiveDocument.Styles("TOC Title").Delete
+End If
 
 End Sub
 Function remove_headers()
@@ -533,7 +535,7 @@ Do While Selection.Find.Execute = True
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
 Loop
-Selection.InsertBefore "<p style='page-break-before: always'>"
+Selection.InsertBefore "<p style='page-break-before: always'><br style='clear: both; page-break-before: always;'>"
 Selection.InsertAfter "</p>"
 End Function
 Function insert_pagebreak(strIn As String)
@@ -547,7 +549,7 @@ Do While Selection.Find.Execute = True
         Selection.MoveEnd Unit:=wdCharacter, Count:=0
     Wend
     Selection.MoveStart Unit:=wdCharacter, Count:=0
-    Selection.InsertBefore "<p style='page-break-before: always'>"
+    Selection.InsertBefore "<p style='page-break-before: always'><br style='clear: both; page-break-before: always;'>"
     Selection.InsertAfter "</p>" & vbCr
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
@@ -607,7 +609,7 @@ If answer = vbNo Then Exit Function
 extPos = InStrRev(ActiveDocument.FullName, ".") 'the last point of the search extension. This may namely 3 or 4,
 filesaveas = Left(ActiveDocument.FullName, extPos - 1) & ".html"
 ActiveDocument.SaveEncoding = msoEncodingUTF8
-ActiveDocument.SaveAs FileName:=filesaveas, FileFormat:=wdFormatText
+ActiveDocument.SaveAs Filename:=filesaveas, FileFormat:=wdFormatText
 MsgBox "File saved as " & filesaveas, vbInformation + vbOKOnly, "Ready!"
 End Function
 Sub RemoveAllComments()
@@ -635,7 +637,7 @@ For Each pge In ActiveDocument.ActiveWindow.Panes(1).Pages
                 For Each oCell In oRow.Cells
                     sCellText = oCell.Range
                     If (oRow.Cells(1).RowIndex = 1) Then
-                        sCellText = "<td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><img style='width: 617px; height: 176px;' src='/UI/ImageViewer.aspx?id=762'></td>"
+                        sCellText = "<td style='border: 1px solid rgb(255,255,255);border-collapse:collapse;'><img style='width: 617px; height: 176px;' src='/UI/ImageViewer.aspx?id=788'></td>"
                         oCell.Range = sCellText
                     Else
                         sCellText = Left$(sCellText, Len(sCellText) - 2)
@@ -689,7 +691,7 @@ Sub cellSel()
 'To select a range of cells within a table, declare a Range variable, assign to it the cells you want to select, and then select the range
     Dim myCells As Range
     With ActiveDocument
-        Set myCells = .Range(Start:=.Tables(1).Cell(1, 1).Range.Start, _
+        Set myCells = .Range(start:=.Tables(1).Cell(1, 1).Range.start, _
             End:=.Tables(1).Cell(1, 4).Range.End)
         myCells.Select
     End With
@@ -723,7 +725,7 @@ Sub AddPics()
                 End If
                  'Insert the Picture
                 ActiveDocument.InlineShapes.AddPicture _
-                FileName:=.SelectedItems(i), LinkToFile:=False, _
+                Filename:=.SelectedItems(i), LinkToFile:=False, _
                 SaveWithDocument:=True, Range:=oTbl.Rows(j + 1).Cells(k).Range
                  'Get the Image name for the Caption
                 strTxt = Split(.SelectedItems(i), "\")(UBound(Split(.SelectedItems(i), "\")))
@@ -865,7 +867,7 @@ For i = 0 To UBound(myarr)
             Selection.MoveEnd Unit:=wdCharacter, Count:=-1
         Wend
         If strLVL = 1 Then
-            Selection.InsertBefore "<p style='page-break-before: always'><strong><span style='font-family: Arial; font-size: 18px;'>" & lstring & "  "
+            Selection.InsertBefore "<p style='page-break-before: always'><br style='clear: both; page-break-before: always;'><strong><span style='font-family: Arial; font-size: 18px;'>" & lstring & "  "
         End If
         If strLVL = 2 Then
             Selection.InsertBefore "<p><strong><span style='font-family: Arial; font-size: 16px;'>" & lstring & "  "
@@ -1034,4 +1036,11 @@ j = 4
     If j <= UBound(astrHeadings) Then j = j + 1
     Next intItem
 End Sub
+Sub tidy()
+Dim wsh As Object
+Set wsh = VBA.CreateObject("WScript.Shell")
+Dim waitOnReturn As Boolean: waitOnReturn = True
+Dim windowStyle As Integer: windowStyle = 1
 
+wsh.Run "cmd.exe /S /C C:\Users\rob.vance\Documents\Validator\tidy.exe -f C:\Users\rob.vance\Documents\Validator\tidy_errors.txt c:\temp\temp.htm -o c:\temp\out.html", windowStyle, waitOnReturn
+End Sub
