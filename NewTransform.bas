@@ -1,10 +1,12 @@
 ' Run the following routine then copy and paste the results into HTML Tidy at
 ' http://infohound.net/tidy/tidy.pl
 ' Then copy the results into ERM
-Sub transform_html()
-' This macro converts the active document in a document with HTML tags and formatting.
+Sub convert2html()
+' Converts a Microsoft Word document into a simplified html code.
 '
-' Customized for Surescripts for converting documents to be stored in ERM (Keylight)
+' Alternative way of saving Word documents as webpages.  This scripts converts the .doc(x) straight into html devoid of 
+' any MS Word styles, etc.
+'
 ' By Rob Vance
 
     ActiveDocument.Save                                 'Save current document
@@ -63,7 +65,7 @@ Dim myRow As Row
     Next objTable
 Set objTable = Nothing
 End Function
-Sub replace_properties()
+Function replace_properties()
 'Get the Title property
     oFN = ActiveDocument.Name
     oFN = Left(oFN, Len(oFN) - 5)
@@ -90,7 +92,7 @@ With ActiveDocument.Content.Find
     .Wrap = wdFindStop
     .Execute FindText:="[To be replaced]", ReplaceWith:="[Replace with]", Replace:=wdReplaceAll
 End With
-End Sub
+End Function
 Function UpCustoms(strName, strValue)
 On Error Resume Next
 If ActiveDocument.CustomDocumentProperties.Count > 0 Then
@@ -107,7 +109,6 @@ End If
 End Function
 Function replace_headers()
 Dim i, headnum As Integer
-
 For i = -2 To -7 Step -1
 headcount = Abs(i) - 1
     Selection.HomeKey wdStory
@@ -127,7 +128,6 @@ headcount = Abs(i) - 1
         Selection.MoveRight wdCharacter, 1
         Loop
 Next i
-
 End Function
 Sub remove_toc()
 Dim doc As Document
@@ -147,8 +147,7 @@ Next
 If ActiveDocument.Styles("TOC Title").NameLocal = "TOC Title" Then
     ActiveDocument.Styles("TOC Title").Delete
 End If
-
-End Sub
+End Function
 Function remove_headers()
      Dim sec As Section
      Dim hdr As HeaderFooter
@@ -196,10 +195,8 @@ Do While Selection.Find.Execute = True
     Wend
     Selection.InsertBefore "<i>"
     Selection.InsertAfter "</i>"
-    
     Selection.MoveRight wdCharacter, 1
 Loop
-
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.Font.Bold = True
@@ -213,7 +210,6 @@ Do While Selection.Find.Execute = True
     Selection.InsertAfter "</b>"
     Selection.MoveRight wdCharacter, 1
 Loop
-
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.Font.Underline = True
@@ -227,13 +223,11 @@ Do While Selection.Find.Execute = True
     Selection.InsertAfter "</u>"
     Selection.MoveRight wdCharacter, 1
 Loop
-
 End Function
 Function replace_notes()
 ' Footnotes convert into endnotes
 Dim num As Long
 Dim myString As String
-
 With ActiveDocument.Sections.Last.Range
     .Collapse Direction:=wdCollapseEnd
     .InsertParagraphAfter
@@ -241,15 +235,12 @@ With ActiveDocument.Sections.Last.Range
     Selection.EndKey Unit:=wdStory
     Selection.ClearFormatting
 End With
-
 If ActiveDocument.Footnotes.Count > 0 Then
     ActiveDocument.Footnotes.Convert
 End If
-        
 If ActiveDocument.Endnotes.Count = 0 Then
     Exit Function
 End If
-
 With Selection
     .HomeKey wdStory
     For num = 1 To ActiveDocument.Endnotes.Count
@@ -265,18 +256,13 @@ With Selection
     .InsertAfter myString
     .Collapse Direction:=wdCollapseEnd
 End With
-
 End Function
 Function replace_lists()
 Dim lstVAL As String, lstLVL As String, outLVL As String
 Dim sText As String
 Dim lijst As List
 Dim para As Paragraph
-
-'replace_hdrs
-
 Selection.HomeKey wdStory
-
 For Each para In ActiveDocument.ListParagraphs
     lstVAL = para.Range.ListFormat.ListValue
     lstLVL = para.Range.ListFormat.ListLevelNumber
@@ -293,7 +279,6 @@ For Each para In ActiveDocument.ListParagraphs
         Selection.InsertAfter "</span></li>"
     End If
 Next para
-
 For Each lijst In ActiveDocument.Lists
     lstVAL = lijst.Range.ListFormat.ListValue
     lstLVL = lijst.Range.ListFormat.ListLevelNumber
@@ -303,7 +288,6 @@ For Each lijst In ActiveDocument.Lists
         Selection.MoveEnd Unit:=wdCharacter, Count:=-1
     Wend
     sText = Selection.Text
-
     If lstTYP <> 4 Then
         If lstTYP = 2 Then
             If lstLVL = 1 Then
@@ -325,7 +309,6 @@ For Each lijst In ActiveDocument.Lists
         End If
     End If
 Next lijst
-
 End Function
 Sub ToBulletOrNotToBullet()
      Dim para As Paragraph, i As Long
@@ -337,7 +320,6 @@ Sub ToBulletOrNotToBullet()
          End If
      Next para
 End Sub
-
 Function replace_tables()
 ' convert tables
 Dim oRow As Row
@@ -400,7 +382,6 @@ If hyperCount > 0 Then
         End With
     Next i
 End If
-
 End Function
 Function replace_pics()
 Dim sDir
@@ -408,23 +389,17 @@ Dim iDir, num As Integer
 Dim oPicture As Word.InlineShape                                    ' Word Shape Object
 Dim CurrentMap, ExportMap As String
 Dim imgname, oldname As String
-
 CurrentMap = ActiveDocument.Path                                    'Directory from current file
 ExportMap = CurrentMap & "\Save_As_HTML_files\"                     'Directory where the images are stored temporarily
-
 On Error Resume Next
 Kill CurrentMap & "\Save_As_HTML.html"
-
 On Error Resume Next
 Kill ExportMap & "*.*"
-
 On Error Resume Next
 RmDir ExportMap
-    
 Application.Documents.Add ActiveDocument.FullName
 ActiveDocument.SaveAs CurrentMap & "\Save_As_HTML.html", FileFormat:=wdFormatHTML
 ActiveDocument.Close
-
 ' <============= Fixup this section =============>
 ' Fix where the location of the images are stored within Keylight
 num = 1
@@ -439,29 +414,20 @@ For Each oPicture In ActiveDocument.InlineShapes
        num = num + 1
    End With
 Next
-
 On Error Resume Next
 Kill CurrentMap & "\Save_As_HTML.html"
-
 On Error Resume Next
 Kill ExportMap & "*.*"
-
 On Error Resume Next
 RmDir ExportMap
-
 End Function
-
 Function replace_customparagraphs()
 Dim answer, strIn As String
-
 answer = vbYes
-
 Do While answer <> vbNo
     answer = MsgBox("Other paragraph styles convert?", vbQuestion + vbYesNo, "Sections")
     If answer = vbNo Then Exit Function
-
     strIn = InputBox("Which Style?")
-
     Selection.HomeKey wdStory
     Selection.Find.ClearFormatting
     Selection.Find.Style = ActiveDocument.Styles(strIn)
@@ -477,11 +443,9 @@ Do While answer <> vbNo
     Selection.MoveRight wdCharacter, 1
     Loop
 Loop
-
 End Function
-Sub replace_formated_paragraphs()
+Function replace_formated_paragraphs()
 'sections that are not headers, bullets
-
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.MatchWildcards = True
@@ -501,7 +465,7 @@ Do While Selection.Find.Execute = True
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
 Loop
-End Sub
+End Function
 Function replace_format_string(strIn As String)
 'sections that are not headers, bullets
 Selection.HomeKey wdStory
@@ -518,7 +482,6 @@ Do While Selection.Find.Execute = True
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
 Loop
-
 End Function
 Function delete_string(strIn As String)
 'sections that are not headers, bullets
@@ -557,7 +520,6 @@ Loop
 End Function
 Function replace_empty_paragraphs()
 'replace paragraphs empty
-
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.MatchWildcards = True
@@ -568,11 +530,8 @@ Do While Selection.Find.Execute = True
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
 Loop
-
 End Function
-
 Function replace_other_paragraphs()
-
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.MatchWildcards = True
@@ -588,18 +547,15 @@ Do While Selection.Find.Execute = True
     Selection.MoveRight wdCharacter, 1
 Loop
 End Function
-
 Function place_headerfooter()
 Dim MyText, strIn As String
 Dim MyRange As Object
-
 Set MyRange = ActiveDocument.Range
 strIn = InputBox("Name external stylesheet?")
 MyText = "<html>" & vbCr & "<head>" & vbCr & "<link rel=" & Chr(34) & "stylesheet" & Chr(34) & " type=" & Chr(34) & "text/css" & Chr(34) & " href=" & Chr(34) & "..\Style\" & strIn & Chr(34) & ">" & vbCr & "</head>" & vbCr & "<body>" & vbCr
 MyRange.InsertBefore (MyText)
 MyText = "</body>" & vbCr & "</html>"
 MyRange.InsertAfter (MyText)
-
 End Function
 Function saveashtml()
 Dim filesaveas, answer As String
@@ -618,7 +574,7 @@ Sub RemoveAllComments()
     ActiveDocument.Comments(n).Delete
     Next 'n
 End Sub
-Sub first_page()
+Function first_page()
 ' tables
 Dim oRow As Row
 Dim oCell As Cell
@@ -627,7 +583,6 @@ Dim sCellText As String
 Dim pge As Page
 Dim pg As Long
 pg = 1
-
 For Each pge In ActiveDocument.ActiveWindow.Panes(1).Pages
     If (pg = 1) Then
         For Each tTable In ActiveDocument.Tables
@@ -681,7 +636,7 @@ For Each pge In ActiveDocument.ActiveWindow.Panes(1).Pages
     End If
     pg = pg + 1
 Next pge
-End Sub
+End Function
 Function FindString(strCheck As String, strFind As String) As Boolean
     intPos = 0
     intPos = InStr(strCheck, strFind)
@@ -696,7 +651,7 @@ Sub cellSel()
         myCells.Select
     End With
 End Sub
-Sub AddPics()
+Function AddPics()
 'http://www.vbaexpress.com/forum/showthread.php?44473-Insert-Multiple-Pictures-Into-Table-Word-With-Macro/page2
     Application.ScreenUpdating = False
     Dim oTbl As Table, i As Long, j As Long, k As Long, strTxt As String
@@ -736,8 +691,8 @@ Sub AddPics()
         End If
     End With
     Application.ScreenUpdating = True
-End Sub
-Sub FormatRows(oTbl As Table, x As Long)
+End Function
+Function FormatRows(oTbl As Table, x As Long)
     With oTbl
         With .Rows(x + 1)
             .Height = CentimetersToPoints(7)
