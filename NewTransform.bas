@@ -1,10 +1,11 @@
 ' Run the following routine then copy and paste the results into HTML Tidy at
 ' http://infohound.net/tidy/tidy.pl
 ' Then copy the results into ERM
-Sub convert2html()
-' Converts a Microsoft Word document into a simplified html code.
 '
-' Alternative way of saving Word documents as webpages.  This scripts converts the .doc(x) straight into html devoid of 
+Sub convert2html()
+' Converts a Microsoft Word document into simplified html code.
+'
+' Alternative way of saving Word documents as webpages.  This scripts converts the .doc(x) straight into html devoid of
 ' any MS Word styles, etc.
 '
 ' By Rob Vance
@@ -109,6 +110,7 @@ End If
 End Function
 Function replace_headers()
 Dim i, headnum As Integer
+
 For i = -2 To -7 Step -1
 headcount = Abs(i) - 1
     Selection.HomeKey wdStory
@@ -128,8 +130,9 @@ headcount = Abs(i) - 1
         Selection.MoveRight wdCharacter, 1
         Loop
 Next i
+
 End Function
-Sub remove_toc()
+Function remove_toc()
 Dim doc As Document
 Dim fld As Field
 Dim rng As Range
@@ -147,6 +150,7 @@ Next
 If ActiveDocument.Styles("TOC Title").NameLocal = "TOC Title" Then
     ActiveDocument.Styles("TOC Title").Delete
 End If
+
 End Function
 Function remove_headers()
      Dim sec As Section
@@ -195,8 +199,10 @@ Do While Selection.Find.Execute = True
     Wend
     Selection.InsertBefore "<i>"
     Selection.InsertAfter "</i>"
+    
     Selection.MoveRight wdCharacter, 1
 Loop
+
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.Font.Bold = True
@@ -210,6 +216,7 @@ Do While Selection.Find.Execute = True
     Selection.InsertAfter "</b>"
     Selection.MoveRight wdCharacter, 1
 Loop
+
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.Font.Underline = True
@@ -223,11 +230,13 @@ Do While Selection.Find.Execute = True
     Selection.InsertAfter "</u>"
     Selection.MoveRight wdCharacter, 1
 Loop
+
 End Function
 Function replace_notes()
 ' Footnotes convert into endnotes
 Dim num As Long
 Dim myString As String
+
 With ActiveDocument.Sections.Last.Range
     .Collapse Direction:=wdCollapseEnd
     .InsertParagraphAfter
@@ -235,12 +244,15 @@ With ActiveDocument.Sections.Last.Range
     Selection.EndKey Unit:=wdStory
     Selection.ClearFormatting
 End With
+
 If ActiveDocument.Footnotes.Count > 0 Then
     ActiveDocument.Footnotes.Convert
 End If
+        
 If ActiveDocument.Endnotes.Count = 0 Then
     Exit Function
 End If
+
 With Selection
     .HomeKey wdStory
     For num = 1 To ActiveDocument.Endnotes.Count
@@ -256,13 +268,18 @@ With Selection
     .InsertAfter myString
     .Collapse Direction:=wdCollapseEnd
 End With
+
 End Function
 Function replace_lists()
 Dim lstVAL As String, lstLVL As String, outLVL As String
 Dim sText As String
 Dim lijst As List
 Dim para As Paragraph
+
+'replace_hdrs
+
 Selection.HomeKey wdStory
+
 For Each para In ActiveDocument.ListParagraphs
     lstVAL = para.Range.ListFormat.ListValue
     lstLVL = para.Range.ListFormat.ListLevelNumber
@@ -279,6 +296,7 @@ For Each para In ActiveDocument.ListParagraphs
         Selection.InsertAfter "</span></li>"
     End If
 Next para
+
 For Each lijst In ActiveDocument.Lists
     lstVAL = lijst.Range.ListFormat.ListValue
     lstLVL = lijst.Range.ListFormat.ListLevelNumber
@@ -288,6 +306,7 @@ For Each lijst In ActiveDocument.Lists
         Selection.MoveEnd Unit:=wdCharacter, Count:=-1
     Wend
     sText = Selection.Text
+
     If lstTYP <> 4 Then
         If lstTYP = 2 Then
             If lstLVL = 1 Then
@@ -303,14 +322,15 @@ For Each lijst In ActiveDocument.Lists
         If lstTYP = 5 Then
             If lstLVL = 1 Then
                 'MsgBox "Lists type=" & lstTYP & " Level " & lstLVL & vbCr & vbCr & sText
-                Selection.InsertBefore "<ou type='A'>"
-                Selection.InsertAfter "</ou>"
+                Selection.InsertBefore "<ul>"
+                Selection.InsertAfter "</ul>"
             End If
         End If
     End If
 Next lijst
+
 End Function
-Sub ToBulletOrNotToBullet()
+Function ToBulletOrNotToBullet()
      Dim para As Paragraph, i As Long
      For Each para In ActiveDocument.Paragraphs
          i = i + 1
@@ -319,7 +339,8 @@ Sub ToBulletOrNotToBullet()
                  & para.Range.ListFormat.ListLevelNumber
          End If
      Next para
-End Sub
+End Function
+
 Function replace_tables()
 ' convert tables
 Dim oRow As Row
@@ -382,6 +403,7 @@ If hyperCount > 0 Then
         End With
     Next i
 End If
+
 End Function
 Function replace_pics()
 Dim sDir
@@ -389,17 +411,23 @@ Dim iDir, num As Integer
 Dim oPicture As Word.InlineShape                                    ' Word Shape Object
 Dim CurrentMap, ExportMap As String
 Dim imgname, oldname As String
+
 CurrentMap = ActiveDocument.Path                                    'Directory from current file
 ExportMap = CurrentMap & "\Save_As_HTML_files\"                     'Directory where the images are stored temporarily
+
 On Error Resume Next
 Kill CurrentMap & "\Save_As_HTML.html"
+
 On Error Resume Next
 Kill ExportMap & "*.*"
+
 On Error Resume Next
 RmDir ExportMap
+    
 Application.Documents.Add ActiveDocument.FullName
 ActiveDocument.SaveAs CurrentMap & "\Save_As_HTML.html", FileFormat:=wdFormatHTML
 ActiveDocument.Close
+
 ' <============= Fixup this section =============>
 ' Fix where the location of the images are stored within Keylight
 num = 1
@@ -414,20 +442,29 @@ For Each oPicture In ActiveDocument.InlineShapes
        num = num + 1
    End With
 Next
+
 On Error Resume Next
 Kill CurrentMap & "\Save_As_HTML.html"
+
 On Error Resume Next
 Kill ExportMap & "*.*"
+
 On Error Resume Next
 RmDir ExportMap
+
 End Function
+
 Function replace_customparagraphs()
 Dim answer, strIn As String
+
 answer = vbYes
+
 Do While answer <> vbNo
     answer = MsgBox("Other paragraph styles convert?", vbQuestion + vbYesNo, "Sections")
     If answer = vbNo Then Exit Function
+
     strIn = InputBox("Which Style?")
+
     Selection.HomeKey wdStory
     Selection.Find.ClearFormatting
     Selection.Find.Style = ActiveDocument.Styles(strIn)
@@ -443,9 +480,11 @@ Do While answer <> vbNo
     Selection.MoveRight wdCharacter, 1
     Loop
 Loop
+
 End Function
 Function replace_formated_paragraphs()
 'sections that are not headers, bullets
+
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.MatchWildcards = True
@@ -482,6 +521,7 @@ Do While Selection.Find.Execute = True
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
 Loop
+
 End Function
 Function delete_string(strIn As String)
 'sections that are not headers, bullets
@@ -498,8 +538,6 @@ Do While Selection.Find.Execute = True
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
 Loop
-Selection.InsertBefore "<p style='page-break-before: always'><br style='clear: both; page-break-before: always;'>"
-Selection.InsertAfter "</p>"
 End Function
 Function insert_pagebreak(strIn As String)
 'sections that are not headers, bullets
@@ -512,7 +550,7 @@ Do While Selection.Find.Execute = True
         Selection.MoveEnd Unit:=wdCharacter, Count:=0
     Wend
     Selection.MoveStart Unit:=wdCharacter, Count:=0
-    Selection.InsertBefore "<p style='page-break-before: always'><br style='clear: both; page-break-before: always;'>"
+    Selection.InsertBefore "<br style='clear: both; page-break-before: always;'>"
     Selection.InsertAfter "</p>" & vbCr
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
@@ -520,6 +558,7 @@ Loop
 End Function
 Function replace_empty_paragraphs()
 'replace paragraphs empty
+
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.MatchWildcards = True
@@ -530,8 +569,10 @@ Do While Selection.Find.Execute = True
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
 Loop
+
 End Function
 Function replace_other_paragraphs()
+
 Selection.HomeKey wdStory
 Selection.Find.ClearFormatting
 Selection.Find.MatchWildcards = True
@@ -547,15 +588,18 @@ Do While Selection.Find.Execute = True
     Selection.MoveRight wdCharacter, 1
 Loop
 End Function
+
 Function place_headerfooter()
 Dim MyText, strIn As String
 Dim MyRange As Object
+
 Set MyRange = ActiveDocument.Range
 strIn = InputBox("Name external stylesheet?")
 MyText = "<html>" & vbCr & "<head>" & vbCr & "<link rel=" & Chr(34) & "stylesheet" & Chr(34) & " type=" & Chr(34) & "text/css" & Chr(34) & " href=" & Chr(34) & "..\Style\" & strIn & Chr(34) & ">" & vbCr & "</head>" & vbCr & "<body>" & vbCr
 MyRange.InsertBefore (MyText)
 MyText = "</body>" & vbCr & "</html>"
 MyRange.InsertAfter (MyText)
+
 End Function
 Function saveashtml()
 Dim filesaveas, answer As String
@@ -566,14 +610,15 @@ extPos = InStrRev(ActiveDocument.FullName, ".") 'the last point of the search ex
 filesaveas = Left(ActiveDocument.FullName, extPos - 1) & ".html"
 ActiveDocument.SaveEncoding = msoEncodingUTF8
 ActiveDocument.SaveAs Filename:=filesaveas, FileFormat:=wdFormatText
+Call tidy(filesaveas)
 MsgBox "File saved as " & filesaveas, vbInformation + vbOKOnly, "Ready!"
 End Function
-Sub RemoveAllComments()
+Function RemoveAllComments()
     Dim n As Long
     For n = ActiveDocument.Comments.Count To 1 Step -1
     ActiveDocument.Comments(n).Delete
     Next 'n
-End Sub
+End Function
 Function first_page()
 ' tables
 Dim oRow As Row
@@ -583,6 +628,7 @@ Dim sCellText As String
 Dim pge As Page
 Dim pg As Long
 pg = 1
+
 For Each pge In ActiveDocument.ActiveWindow.Panes(1).Pages
     If (pg = 1) Then
         For Each tTable In ActiveDocument.Tables
@@ -642,7 +688,7 @@ Function FindString(strCheck As String, strFind As String) As Boolean
     intPos = InStr(strCheck, strFind)
     FindString = intPos > 0
 End Function
-Sub cellSel()
+Function cellSel()
 'To select a range of cells within a table, declare a Range variable, assign to it the cells you want to select, and then select the range
     Dim myCells As Range
     With ActiveDocument
@@ -650,7 +696,7 @@ Sub cellSel()
             End:=.Tables(1).Cell(1, 4).Range.End)
         myCells.Select
     End With
-End Sub
+End Function
 Function AddPics()
 'http://www.vbaexpress.com/forum/showthread.php?44473-Insert-Multiple-Pictures-Into-Table-Word-With-Macro/page2
     Application.ScreenUpdating = False
@@ -705,7 +751,7 @@ Function FormatRows(oTbl As Table, x As Long)
             .Range.Style = "Normal"
         End With
     End With
-End Sub
+End Function
 Function ReadProp(sPropName As String) As Variant
 
 Dim bCustom As Boolean
@@ -740,7 +786,7 @@ ErrHandlerReadProp:
    End If
 
 End Function
-Sub PropsToTable()
+Function PropsToTable()
 ' Document Properties
     Dim oRange As Word.Range
     Dim oProp  As DocumentProperty
@@ -770,8 +816,8 @@ Sub PropsToTable()
      
      'Clean up
     Set oRange = Nothing
-End Sub
-Sub CustomPropsToTable()
+End Function
+Function CustomPropsToTable()
 ' Document Custom Properties
     Dim oRange As Word.Range
     Dim oProp  As DocumentProperty
@@ -801,7 +847,7 @@ Sub CustomPropsToTable()
      
      'Clean up
     Set oRange = Nothing
-End Sub
+End Function
 Function replace_hdrs()
 Dim v As String, lstring As String, strLVL As String
 Dim i As Long
@@ -822,7 +868,7 @@ For i = 0 To UBound(myarr)
             Selection.MoveEnd Unit:=wdCharacter, Count:=-1
         Wend
         If strLVL = 1 Then
-            Selection.InsertBefore "<p style='page-break-before: always'><br style='clear: both; page-break-before: always;'><strong><span style='font-family: Arial; font-size: 18px;'>" & lstring & "  "
+            Selection.InsertBefore "<br style='clear: both; page-break-before: always;'><strong><span style='font-family: Arial; font-size: 18px;'>" & lstring & "  "
         End If
         If strLVL = 2 Then
             Selection.InsertBefore "<p><strong><span style='font-family: Arial; font-size: 16px;'>" & lstring & "  "
@@ -854,7 +900,7 @@ For i = 0 To UBound(myarr)
     Loop
 Next
 End Function
-Sub convertback(strTable)
+Function convertback(strTable)
 ' convert tables
 Dim tTable As Table
 Dim oRange As Word.Range
@@ -864,13 +910,13 @@ Dim oRange As Word.Range
             oRange.ConvertToTable Separator:=wdSeparateByTabs
         End If
         Set oRange = Nothing
-        Exit Sub
+        Exit Function
     Next tTable
-End Sub
+End Function
 Function replaceSpace(sText As String)
     replaceSpace = Replace(sText, " ", "_")
 End Function
-Sub DeleteUnusedStyles()
+Function DeleteUnusedStyles()
     Dim oStyle As Style
     For Each oStyle In ActiveDocument.Styles
         'Only check out non-built-in styles
@@ -883,7 +929,7 @@ Sub DeleteUnusedStyles()
             End With
         End If
     Next oStyle
-End Sub
+End Function
 Function GetLevel(strItem As String) As Integer
     ' Return the heading level of a header from the
     ' array returned by Word.
@@ -903,12 +949,12 @@ Function GetLevel(strItem As String) As Integer
     ' the original.
     strTemp = LTrim$(strOriginal)
 
-    ' Subtract to find the number of
+    ' Functiontract to find the number of
     ' leading spaces in the original string.
     intDiff = Len(strOriginal) - Len(strTemp)
     GetLevel = (intDiff / 2) + 1
 End Function
-Sub CreateTOC()
+Function CreateTOC()
     Dim docOutline As Word.Document
     Dim docSource As Word.Document
     Dim rng As Word.Range
@@ -990,12 +1036,20 @@ j = 4
         End If
     If j <= UBound(astrHeadings) Then j = j + 1
     Next intItem
-End Sub
-Sub tidy()
+End Function
+Sub tidy(ByVal filesaveas As String)
+' Experimental
+' Attempting to properly format the output using tidy
+'Const TIDY_PROGRAM_FILE = "C:\Users\rob.vance\Documents\Validator\tidy.exe"
+
 Dim wsh As Object
 Set wsh = VBA.CreateObject("WScript.Shell")
 Dim waitOnReturn As Boolean: waitOnReturn = True
 Dim windowStyle As Integer: windowStyle = 1
 
-wsh.Run "cmd.exe /S /C C:\Users\rob.vance\Documents\Validator\tidy.exe -f C:\Users\rob.vance\Documents\Validator\tidy_errors.txt c:\temp\temp.htm -o c:\temp\out.html", windowStyle, waitOnReturn
+filesaveas = "Regulatory Compliance Policy.html"
+
+'wsh.Run "cmd.exe /S /C " & TIDY_PROGRAM_FILE & " --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f " & TIDY_ERROR_FILE & " -m " & filesaveas, windowStyle, waitOnReturn
+wsh.Run "cmd.exe /S /C C:\Users\rob.vance\Documents\Validator\tidy.exe --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f C:\Users\rob.vance\Documents\Validator\tidy_errors.txt -m " & filesaveas, windowStyle, waitOnReturn
+
 End Sub
