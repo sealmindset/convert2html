@@ -65,10 +65,10 @@ If pg <> 1 Then
         myRow.Cells.VerticalAlignment = wdCellAlignVerticalTop
         If myRow.Cells(1).RowIndex = 1 Then
             'myRow.Range.Style = "TBL Header"
-            If ActiveDocument.Range(0, Selection.Tables(1).Range.End).Tables.Count <> 1 Then        ' ignore the first table i.e., title page
+            'If ActiveDocument.Range(0, Selection.Tables(1).Range.End).Tables.Count <> 1 Then        ' ignore the first table i.e., title page
                 myRow.Range.Shading.BackgroundPatternColor = RGB(191, 191, 191)
                 myRow.HeadingFormat = True
-            End If
+            'End If
         End If
         Next myRow
     Next objTable
@@ -246,11 +246,16 @@ Function replace_notes()
 ' Footnotes convert into endnotes
 Dim num As Long
 Dim myString As String
+Dim myStoryRange As Range
 
 With ActiveDocument.Sections.Last.Range
     .Collapse Direction:=wdCollapseEnd
     .InsertParagraphAfter
+If ActiveDocument.Endnotes.Count = 0 Then
+    Exit Function
+Else
     .InsertAfter "<hr />" & vbCr
+End If
     Selection.EndKey Unit:=wdStory
     Selection.ClearFormatting
 End With
@@ -560,8 +565,7 @@ Do While Selection.Find.Execute = True
         Selection.MoveEnd Unit:=wdCharacter, Count:=0
     Wend
     Selection.MoveStart Unit:=wdCharacter, Count:=0
-    Selection.InsertBefore "<br style='clear: both; page-break-before: always;'>"
-    Selection.InsertAfter "</p>" & vbCr
+    Selection.InsertBefore "<br style='clear: both; page-break-before: always;'>" & vbCr
     Selection.Style = -1
     Selection.MoveRight wdCharacter, 1
 Loop
@@ -878,7 +882,7 @@ For i = 0 To UBound(myarr)
             Selection.MoveEnd Unit:=wdCharacter, Count:=-1
         Wend
         If strLVL = 1 Then
-            Selection.InsertBefore "<br style='clear: both; page-break-before: always;'><strong><span style='font-family: Arial; font-size: 18px;'>" & lstring & "  "
+            Selection.InsertBefore "<br style='clear: both; page-break-before: always;'><p><strong><span style='font-family: Arial; font-size: 18px;'>" & lstring & "  "
         End If
         If strLVL = 2 Then
             Selection.InsertBefore "<p><strong><span style='font-family: Arial; font-size: 16px;'>" & lstring & "  "
@@ -1061,8 +1065,25 @@ filesaveas = "Regulatory Compliance Policy.html"
 
 'wsh.Run "cmd.exe /S /C " & TIDY_PROGRAM_FILE & " --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f " & TIDY_ERROR_FILE & " -m " & filesaveas, windowStyle, waitOnReturn
 wsh.Run "cmd.exe /S /C C:\Users\rob.vance\Documents\Validator\tidy.exe --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f C:\Users\rob.vance\Documents\Validator\tidy_errors.txt -m " & filesaveas, windowStyle, waitOnReturn
-
 End Sub
-
-
+Function EndnotesExist() As Boolean
+'Detect Endnote
+    Dim myStoryRange As Range
+    For Each myStoryRange In ActiveDocument.StoryRanges
+        If myStoryRange.StoryType = wdEndnotesStory Then
+            EndnotesExist = True
+            Exit For
+        End If
+    Next myStoryRange
+End Function
+Function FootnotesExist() As Boolean
+'Detect Footnote
+    Dim myStoryRange As Range
+    For Each myStoryRange In ActiveDocument.StoryRanges
+        If myStoryRange.StoryType = wdFootnotesStory Then
+            FootnotesExist = True
+            Exit For
+        End If
+    Next myStoryRange
+End Function
 
