@@ -47,6 +47,14 @@ End Sub
 Function TableHeadersRepeat()
 Dim objTable As Word.Table
 Dim myRow As Row
+Dim pge As Page
+Dim pg As Long
+
+For pg = 1 To ActiveDocument.Range.Information(wdNumberOfPagesInDocument)
+'If pg = 1 Then
+'    Selection.GoTo What:=wdGoToPage, Which:=wdGoToNext
+'Else
+If pg <> 1 Then
     For Each objTable In ActiveDocument.Tables
     On Error Resume Next
         objTable.Rows(1).HeadingFormat = True
@@ -64,6 +72,8 @@ Dim myRow As Row
         End If
         Next myRow
     Next objTable
+End If
+Next pg
 Set objTable = Nothing
 End Function
 Function replace_properties()
@@ -619,7 +629,7 @@ Function RemoveAllComments()
     ActiveDocument.Comments(n).Delete
     Next 'n
 End Function
-Function first_page()
+Sub first_page()
 ' tables
 Dim oRow As Row
 Dim oCell As Cell
@@ -682,7 +692,7 @@ For Each pge In ActiveDocument.ActiveWindow.Panes(1).Pages
     End If
     pg = pg + 1
 Next pge
-End Function
+End Sub
 Function FindString(strCheck As String, strFind As String) As Boolean
     intPos = 0
     intPos = InStr(strCheck, strFind)
@@ -1053,3 +1063,6 @@ filesaveas = "Regulatory Compliance Policy.html"
 wsh.Run "cmd.exe /S /C C:\Users\rob.vance\Documents\Validator\tidy.exe --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f C:\Users\rob.vance\Documents\Validator\tidy_errors.txt -m " & filesaveas, windowStyle, waitOnReturn
 
 End Sub
+
+
+
