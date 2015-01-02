@@ -157,6 +157,7 @@ For Each fld In doc.Fields
         ActiveDocument.TablesOfContents(1).Delete
     End If
 Next
+On Error Resume Next
 If ActiveDocument.Styles("TOC Title").NameLocal = "TOC Title" Then
     ActiveDocument.Styles("TOC Title").Delete
 End If
@@ -356,15 +357,20 @@ Function ToBulletOrNotToBullet()
      Next para
 End Function
 
-Function replace_tables()
+Sub replace_tables()
 ' convert tables
+rtnTables:
+On Error GoTo ErrorHandler
 Dim oRow As Row
 Dim oCell As Cell
 Dim sCellText As String
 Dim tTable As Table
-Dim noRows, noCells As Long
+Dim noRows, noCells, tblnum As Long
+
         For Each tTable In ActiveDocument.Tables
+        On Error GoTo ErrorHandler
             For Each oRow In tTable.Rows
+            
                 For Each oCell In oRow.Cells
                     sCellText = oCell.Range
                     sCellText = Left$(sCellText, Len(sCellText) - 2)
@@ -401,6 +407,28 @@ Dim noRows, noCells As Long
             tTable.Rows(noRows).Cells(noCells).Range = sCellText
             tTable.ConvertToText Separator:=wdSeparateByParagraphs
         Next tTable
+        
+ErrorHandler:
+    If Err.Number = 5991 Then
+        tblnum = ActiveDocument.Range(0, Selection.Sections(1).Range.End).Sections.Count
+        MsgBox "Table #" & tblnum
+        splitTBL (tblnum)
+        GoTo rtnTables
+    End If
+End Sub
+Function splitTBL(ByVal tblnum As Long)
+         For Each c In ActiveDocument.Tables(tblnum).Range.Cells
+         On Error Resume Next
+             c.Select
+             RowSpan = (Selection.Information(wdEndOfRangeRowNumber) - Selection.Information(wdStartOfRangeRowNumber)) + 1
+             If RowSpan > 1 Then
+                 iCol = Selection.Information(wdEndOfRangeColumnNumber)
+                 iRow = Selection.Information(wdEndOfRangeRowNumber)
+                 'MsgBox "Row: " & iRow & vbCr & "Column: " & iCol
+                 'MsgBox "Manually split the merged rows before running the script."
+                 Selection.Cells.Split NumRows:=RowSpan, NumColumns:=1, MergeBeforeSplit:=False
+             End If
+         Next c
 End Function
 Function replace_hyper()
 'convert hyperlinks
@@ -870,6 +898,7 @@ myarr = Array("H1", "H2", "H3")
 ' capture and format the heading
 For i = 0 To UBound(myarr)
     Selection.HomeKey wdStory
+    On Error Resume Next
     Selection.Find.Style = ActiveDocument.Styles(myarr(i))
     Selection.Find.Text = ""
     Do While Selection.Find.Execute = True
@@ -1065,25 +1094,43 @@ filesaveas = "Regulatory Compliance Policy.html"
 
 'wsh.Run "cmd.exe /S /C " & TIDY_PROGRAM_FILE & " --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f " & TIDY_ERROR_FILE & " -m " & filesaveas, windowStyle, waitOnReturn
 wsh.Run "cmd.exe /S /C C:\Users\rob.vance\Documents\Validator\tidy.exe --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f C:\Users\rob.vance\Documents\Validator\tidy_errors.txt -m " & filesaveas, windowStyle, waitOnReturn
+
 End Sub
-Function EndnotesExist() As Boolean
+
 'Detect Endnote
+Function EndnotesExist() As Boolean
+
     Dim myStoryRange As Range
+
     For Each myStoryRange In ActiveDocument.StoryRanges
+
         If myStoryRange.StoryType = wdEndnotesStory Then
+
             EndnotesExist = True
+
             Exit For
+
         End If
+
     Next myStoryRange
-End Function
-Function FootnotesExist() As Boolean
-'Detect Footnote
-    Dim myStoryRange As Range
-    For Each myStoryRange In ActiveDocument.StoryRanges
-        If myStoryRange.StoryType = wdFootnotesStory Then
-            FootnotesExist = True
-            Exit For
-        End If
-    Next myStoryRange
+
 End Function
 
+'Detect Footnote
+Function FootnotesExist() As Boolean
+
+    Dim myStoryRange As Range
+
+    For Each myStoryRange In ActiveDocument.StoryRanges
+
+        If myStoryRange.StoryType = wdFootnotesStory Then
+
+            FootnotesExist = True
+
+            Exit For
+
+        End If
+
+    Next myStoryRange
+
+End Function
