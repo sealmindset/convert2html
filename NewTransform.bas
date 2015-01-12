@@ -20,17 +20,18 @@ Sub convert2html()
     remove_headers                                      'remove all of the header information
     remove_footers                                      'remove all of the footer information
     remove_toc                                          'table of contents
-    delete_string ("Table of Contents")
+    'delete_string ("Table of Contents")
     insert_pagebreak ("Document Management")
     
     replace_hdrs                                        'convert custom styles
     replace_format_string ("Document Management")
     replace_format_string ("Document Change Log")
     replace_format_string ("Stakeholder Review")
+    
+    replace_notes                                       'replace footnotes and endnotes
 
     replace_tables                                      'convert from tables
     
-    replace_notes                                       'replace footnotes and endnotes
     replace_lists                                       'convert simple one level lists
     replace_hyper                                       'convert hyperlinks
     
@@ -894,7 +895,7 @@ Function replace_hdrs()
 Dim v As String, lstring As String, strLVL As String
 Dim i As Long
 Dim myarr As Variant
-myarr = Array("H1", "H2", "H3")
+myarr = Array("H1", "H2", "H3", "Heading Apx 1 Surescripts")
 ' capture and format the heading
 For i = 0 To UBound(myarr)
     Selection.HomeKey wdStory
@@ -998,7 +999,7 @@ Function GetLevel(strItem As String) As Integer
     GetLevel = (intDiff / 2) + 1
 End Function
 Function CreateTOC()
-    Dim docOutline As Word.Document
+    'Dim docOutline As Word.Document
     Dim docSource As Word.Document
     Dim rng As Word.Range
     Dim strFootNum() As Integer
@@ -1010,14 +1011,14 @@ Function CreateTOC()
     Dim tabStops As Variant
 
     Set docSource = ActiveDocument
-    Set docOutline = Documents.Add
+    'Set docOutline = Documents.Add
     
     minLevel = 5  'levels above this value won't be copied.
 
     ' Content returns only the
     ' main body of the document, not
     ' the headers and footer.
-    Set rng = docOutline.Content
+    Set rng = docSource.Content
     astrHeadings = docSource.GetCrossReferenceItems(wdRefTypeHeading)
 
     docSource.Select
@@ -1035,7 +1036,7 @@ Function CreateTOC()
         Selection.Move
     Next
 
-    docOutline.Select
+    docSource.Select
 
     With Selection.Paragraphs.tabStops
         '.Add Position:=InchesToPoints(2), Alignment:=wdAlignTabLeft
@@ -1052,6 +1053,7 @@ j = 4
 
         If intLevel <= minLevel Then
                 If intLevel = "1" Then
+
                     strText = " " & Trim$(astrHeadings(intItem)) & vbTab & j & vbCr
                 End If
                 If intLevel = "2" Then
@@ -1068,7 +1070,7 @@ j = 4
                 End If
             ' Add the text to the document.
             rng.InsertAfter strText & vbLf
-            docOutline.SelectAllEditableRanges
+            docSource.SelectAllEditableRanges
             ' tab stop to set at 15.24 cm
             'With Selection.Paragraphs.tabStops
             '    .Add Position:=InchesToPoints(6), _
@@ -1079,6 +1081,8 @@ j = 4
         End If
     If j <= UBound(astrHeadings) Then j = j + 1
     Next intItem
+
+
 End Function
 Sub tidy(ByVal filesaveas As String)
 ' Experimental
@@ -1133,4 +1137,19 @@ Function FootnotesExist() As Boolean
 
     Next myStoryRange
 
+End Function
+
+Function InsHTMLHeader()
+'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+'<html xmlns="http://www.w3.org/1999/xhtml">
+'    <head>
+'        <style id="__lpComplexBulleting__" type="text/css">
+'            OL { counter-reset: item !important }
+'            OL LI { display: block !important}
+'            OL LI:before { content: counters(item, ".") ". "; counter-increment: item !important}
+'        </style>
+'        <meta name="generator" content="HTML Tidy for Linux/x86 (vers 25 March 2009), see www.w3.org">
+'        <title></title>
+'    </head>
+'    <body>
 End Function
