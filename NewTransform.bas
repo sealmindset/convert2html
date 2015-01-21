@@ -38,7 +38,7 @@ Sub convert2html()
     replace_formated_paragraphs                         'convert sections with formatting
     
     'replace_other_paragraphs                             'convert other sections
-    'place_headerfooter                                   'move HTML header
+    place_headerfooter                                   'move HTML header
     saveashtml                                          'save changes
     
     ActiveDocument.Select
@@ -358,7 +358,7 @@ Function ToBulletOrNotToBullet()
      Next para
 End Function
 
-Sub replace_tables()
+Private Sub replace_tables()
 ' convert tables
 rtnTables:
 On Error GoTo ErrorHandler
@@ -637,8 +637,8 @@ Dim MyText, strIn As String
 Dim MyRange As Object
 
 Set MyRange = ActiveDocument.Range
-strIn = InputBox("Name external stylesheet?")
-MyText = "<html>" & vbCr & "<head>" & vbCr & "<link rel=" & Chr(34) & "stylesheet" & Chr(34) & " type=" & Chr(34) & "text/css" & Chr(34) & " href=" & Chr(34) & "..\Style\" & strIn & Chr(34) & ">" & vbCr & "</head>" & vbCr & "<body>" & vbCr
+
+MyText = "<!DOCTYPE html PUBLIC" & Chr(34) & "-//W3C//DTD XHTML 1.0 Transitional//EN" & Chr(34) & vbCr & "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" & Chr(34) & ">" & vbCr & "<html>" & vbCr & "<head>" & vbCr & "<title></title>" & vbCr & "</head>" & vbCr & "<body>" & vbCr
 MyRange.InsertBefore (MyText)
 MyText = "</body>" & vbCr & "</html>"
 MyRange.InsertAfter (MyText)
@@ -662,7 +662,7 @@ Function RemoveAllComments()
     ActiveDocument.Comments(n).Delete
     Next 'n
 End Function
-Sub first_page()
+Private Sub first_page()
 ' tables
 Dim oRow As Row
 Dim oCell As Cell
@@ -1139,17 +1139,5 @@ Function FootnotesExist() As Boolean
 
 End Function
 
-Function InsHTMLHeader()
-'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-'<html xmlns="http://www.w3.org/1999/xhtml">
-'    <head>
-'        <style id="__lpComplexBulleting__" type="text/css">
-'            OL { counter-reset: item !important }
-'            OL LI { display: block !important}
-'            OL LI:before { content: counters(item, ".") ". "; counter-increment: item !important}
-'        </style>
-'        <meta name="generator" content="HTML Tidy for Linux/x86 (vers 25 March 2009), see www.w3.org">
-'        <title></title>
-'    </head>
-'    <body>
-End Function
+
+
