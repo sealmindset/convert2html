@@ -1,9 +1,3 @@
 *** Start of something
 
-Windows VM Images
-
-https://dev.windows.com/en-us/microsoft-edge/tools/vms/windows/
-
-https://dev.windows.com/en-us/microsoft-edge/tools/staticscan/?url=https%3A%2F%2Ffhir-api-staging.surescripts.net%2Ffhir
-
-https://www.vulnhub.com/
+Needed a way to flatten a Microsoft Word document which are heavily ladden with Microsoft's own dubious and bloated code.  And because it was for a client, had to code it in a format that the client would accept.
