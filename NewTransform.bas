@@ -458,6 +458,7 @@ Dim addr As String
 
 hyperCount = ActiveDocument.Hyperlinks.Count
 If hyperCount > 0 Then
+    On Error Resume Next
     For i = 1 To hyperCount
         With ActiveDocument.Hyperlinks(1)
             addr = .Address
