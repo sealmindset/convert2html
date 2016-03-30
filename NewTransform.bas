@@ -1,3 +1,4 @@
+Attribute VB_Name = "Module111"
 ' Run the following routine then copy and paste the results into HTML Tidy at
 ' http://infohound.net/tidy/tidy.pl
 ' Then copy the results into ERM
@@ -11,24 +12,24 @@ Sub convert2html()
 ' version 1.1
 ' Author: Rob Vance (http://www.ngosecurity.com)
 
-' 	The MIT License
-' 	-----------------------------------------------------------------------
-' 	Copyright (c) 2015 NGO Security Solutions
-' 	Permission is hereby granted, free of charge, to any person obtaining a 
-' 	copy of this software and associated documentation files (the `"Software`"), 
-' 	to deal in the Software without restriction, including without limitation 
-' 	the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-' 	and/or sell copies of the Software, and to permit persons to whom the 
-' 	Software is furnished to do so, subject to the following conditions:
-' 	The above copyright notice and this permission notice shall be included 
-' 	in all copies or substantial portions of the Software.
-' 	THE SOFTWARE IS PROVIDED `"AS IS`", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-' 	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-' 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-' 	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-' 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-' 	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
-' 	DEALINGS IN THE SOFTWARE.
+'       The MIT License
+'       -----------------------------------------------------------------------
+'       Copyright (c) 2015 NGO Security Solutions
+'       Permission is hereby granted, free of charge, to any person obtaining a
+'       copy of this software and associated documentation files (the `"Software`"),
+'       to deal in the Software without restriction, including without limitation
+'       the rights to use, copy, modify, merge, publish, distribute, sublicense,
+'       and/or sell copies of the Software, and to permit persons to whom the
+'       Software is furnished to do so, subject to the following conditions:
+'       The above copyright notice and this permission notice shall be included
+'       in all copies or substantial portions of the Software.
+'       THE SOFTWARE IS PROVIDED `"AS IS`", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+'       OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+'       FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+'       AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+'       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+'       FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+'       DEALINGS IN THE SOFTWARE.
 
     ActiveDocument.Save                                 'Save current document
     Application.ScreenUpdating = False                  'screen updates off during macro
@@ -665,18 +666,6 @@ MyText = "</body>" & vbCr & "</html>"
 MyRange.InsertAfter (MyText)
 
 End Function
-Function saveashtml()
-Dim filesaveas, answer As String
-Dim extPos As Integer
-answer = MsgBox("HTML Save?", vbQuestion + vbYesNo, "Save")
-If answer = vbNo Then Exit Function
-extPos = InStrRev(ActiveDocument.FullName, ".") 'the last point of the search extension. This may namely 3 or 4,
-filesaveas = Left(ActiveDocument.FullName, extPos - 1) & ".html"
-ActiveDocument.SaveEncoding = msoEncodingUTF8
-ActiveDocument.SaveAs Filename:=filesaveas, FileFormat:=wdFormatText
-Call tidy(filesaveas)
-MsgBox "File saved as " & filesaveas, vbInformation + vbOKOnly, "Ready!"
-End Function
 Function RemoveAllComments()
     Dim n As Long
     For n = ActiveDocument.Comments.Count To 1 Step -1
@@ -1105,20 +1094,28 @@ j = 4
 
 
 End Function
-Sub tidy(ByVal filesaveas As String)
+
+Sub saveashtml()
 ' Experimental
 ' Attempting to properly format the output using tidy
 'Const TIDY_PROGRAM_FILE = "C:\Users\rob.vance\Documents\Validator\tidy.exe"
-
 Dim wsh As Object
 Set wsh = VBA.CreateObject("WScript.Shell")
 Dim waitOnReturn As Boolean: waitOnReturn = True
 Dim windowStyle As Integer: windowStyle = 1
+Dim UNameId, defaultPath, filesaveas As String
+Dim extPos As Integer
 
-filesaveas = "Regulatory Compliance Policy.html"
+UNameId = Environ("USERNAME")
+extPos = InStrRev(ActiveDocument.Name, ".") 'the last point of the search extension. This may namely 3 or 4,
+filesaveas = Left(ActiveDocument.Name, extPos - 1) & ".html"
+defaultPath = "C:\Users\" & UNameId & "\Documents\" & filesaveas
 
-'wsh.Run "cmd.exe /S /C " & TIDY_PROGRAM_FILE & " --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f " & TIDY_ERROR_FILE & " -m " & filesaveas, windowStyle, waitOnReturn
-wsh.Run "cmd.exe /S /C C:\Users\rob.vance\Documents\Validator\tidy.exe --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f C:\Users\rob.vance\Documents\Validator\tidy_errors.txt -m " & filesaveas, windowStyle, waitOnReturn
+ActiveDocument.SaveEncoding = msoEncodingUTF8
+ActiveDocument.SaveAs Filename:=defaultPath, FileFormat:=wdFormatText
+
+wsh.Run "cmd.exe /S /C C:\Users\" & UNameId & "\Documents\Validator\tidy.exe --output-xhtml y --indent 'auto' --indent-spaces '2' --wrap '90' -f C:\Users\" & UNameId & "\Documents\Validator\tidy_errors.txt -m " & defaultPath, windowStyle, waitOnReturn
+MsgBox "Document saved as HTML in " & defaultPath
 
 End Sub
 
